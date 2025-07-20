@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard - Event Management</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+<body>
+
+<div class="container mt-5">
+    <h2 class="text-center">Event Management Dashboard</h2>
+    
+    <!-- Role Display -->
+    <div class="mb-3">
+        <h5>Welcome, <span id="username">User</span> | Role: <span id="userRole">ROLE</span></h5>
+    </div>
+
+    <!-- ADMIN VIEW -->
+    <div id="admin-section" class="d-none">
+        <h4>All Events</h4>
+        <div id="eventList" class="table-responsive"></div>
+    </div>
+
+    <!-- MANAGER VIEW -->
+    <div id="manager-section" class="d-none">
+        <h4>Manage Events</h4>
+        <button class="btn btn-primary mb-3" onclick="addEvent()">Add New Event</button>
+        <div id="manageEventList" class="table-responsive"></div>
+    </div>
+
+    <!-- USER VIEW -->
+    <div id="user-section" class="d-none">
+        <h4>Available Events</h4>
+        <div id="userEventList" class="table-responsive"></div>
+    </div>
+
+    <div class="text-center mt-5">
+        <button class="btn btn-danger" onclick="logout()">Logout</button>
+    </div>
+</div>
+
+<script>
+    // Example: Set role and name from localStorage or token (simplified)
+    const user = {
+        role: localStorage.getItem('role') || 'USER', // "ADMIN", "MANAGER", or "USER"
+        name: localStorage.getItem('name') || 'Guest'
+    };
+
+    document.getElementById('username').textContent = user.name;
+    document.getElementById('userRole').textContent = user.role;
+
+    // Role-based section display
+    if (user.role === 'ADMIN') {
+        document.getElementById('admin-section').classList.remove('d-none');
+        loadAllEvents();
+    } else if (user.role === 'MANAGER') {
+        document.getElementById('manager-section').classList.remove('d-none');
+        loadManageEvents();
+    } else if (user.role === 'USER') {
+        document.getElementById('user-section').classList.remove('d-none');
+        loadUserEvents();
+    }
+
+    function loadAllEvents() {
+        // fetch('/api/admin/events') ...
+        document.getElementById('eventList').innerHTML = '<p>All events loaded here...</p>';
+    }
+
+    function loadManageEvents() {
+        // fetch('/api/manager/events') ...
+        document.getElementById('manageEventList').innerHTML = '<p>Editable event list...</p>';
+    }
+
+    function loadUserEvents() {
+        // fetch('/api/user/events') ...
+        document.getElementById('userEventList').innerHTML = '<p>Upcoming & ongoing events...</p>';
+    }
+
+    function addEvent() {
+        alert('Add Event UI triggered.');
+    }
+
+    function logout() {
+        localStorage.clear();
+        window.location.href = '/login.html';
+    }
+</script>
+
+</body>
+</html>

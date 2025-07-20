@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Manage Events - Event Management</title>
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+  />
+</head>
+<body class="bg-light">
+
+<div class="container mt-5">
+  <h2 class="text-center mb-4">📅 Manage Events</h2>
+
+  <!-- Message area -->
+  <div id="message" class="text-center text-danger mb-3"></div>
+
+  <!-- Event Table -->
+  <table class="table table-bordered table-hover">
+    <thead class="table-dark">
+      <tr>
+        <th>ID</th>
+        <th>Title</th>
+        <th>Location</th>
+        <th>Date</th>
+        <th>Description</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody id="eventTableBody"></tbody>
+  </table>
+
+  <!-- Add Event Form -->
+  <div class="mt-5">
+    <h4>Add New Event</h4>
+    <form id="eventForm">
+      <div class="row g-3">
+        <div class="col-md-4">
+          <input type="text" class="form-control" id="title" placeholder="Title" required />
+        </div>
+        <div class="col-md-4">
+          <input type="text" class="form-control" id="location" placeholder="Location" required />
+        </div>
+        <div class="col-md-4">
+          <input type="date" class="form-control" id="date" required />
+        </div>
+        <div class="col-12">
+          <textarea class="form-control" id="description" rows="2" placeholder="Description" required></textarea>
+        </div>
+        <div class="col-12 text-end">
+          <button type="submit" class="btn btn-primary">Add Event</button>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <div class="text-center mt-4">
+    <button onclick="goBack()" class="btn btn-secondary">Back to Dashboard</button>
+  </div>
+</div>
+
+<script>
+  const tableBody = document.getElementById("eventTableBody");
+  const message = document.getElementById("message");
+
+  const token = localStorage.getItem("token");
+
+  function loadEvents() {
+    fetch("/api/events", {
+      headers: {
+        "Authorization": "Bearer " + token
+      }
+    })
+      .then((res) => res.json())
+      .then((events) => {
+        tableBody.innerHTML = "";
+        events.forEach((event) => {
+          const row = document.createElement("tr");
+          row.innerHTML = `
+            <td>${event.id}</td>
+            <td>${event.title}</td>
+            <td>${event.location}</td>
+            <td>${event.date}</td>
+            <td>${event.description}</td>
+            <td>
+              <button class="btn btn-sm btn-warning me-1" onclick="editEvent(${event.id})">Edit</button>
+              <button class="btn btn-sm btn-danger" onclick="deleteEvent(${event.id})">Delete</button>
+            </td>
+          `;
+          tableBody.appendChild(row);
+        });
+      })
+      .catch(() => {
+        message.textContent = "Failed to load events.";
+      });
+  }
+
+  // Load events on page load
+  loadEvents();
+
+  // Add new event
+  document.getElementById("eventForm").addEventListener("submit", function (e) {
+    e.preventDefault();
+
+    const newEvent = {
+      title: document.getElementById("title").value,
+      location: document.getElementById("location").value,
+      date: document.getElementById("date").value,
+      description: document.getElementById("description").value,
+    };
+
+    fetch("/api/events", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + token
+      },
+      body: JSON.stringify(newEvent),
+    })
+      .then((res) => {
+        if (res.ok) {
+          alert("Event added successfully!");
+          document.getElementById("eventForm").reset();
+          loadEvents();
+        } else {
+          return res.text().then((msg) => { throw new Error(msg); });
+        }
+      })
+      .catch((err) => {
+        message.textContent = "Failed to add event: " + err.message;
+      });
+  });
+
+  // Delete event
+  function deleteEvent(id) {
+    if (!confirm("Are you sure you want to delete this event?")) return;
+
+    fetch(`/api/events/${id}`, {
+      method: "DELETE",
+      headers: {
+        "Authorization": "Bearer " + token
+      }
+    })
+      .then((res) => {
+        if (res.ok) {
+          loadEvents();
+        } else {
+          return res.text().then((msg) => { throw new Error(msg); });
+        }
+      })
+      .catch((err) => {
+        message.textContent = "Delete failed: " + err.message;
+      });
+  }
+
+  // Edit event placeholder
+  function editEvent(id) {
+    alert("Edit functionality not implemented yet (Event ID: " + id + ")");
+  }
+
+  function goBack() {
+    const role = localStorage.getItem("role");
+    if (role === "ADMIN") {
+      window.location.href = "/admin-dashboard.html";
+    } else if (role === "MANAGER") {
+      window.location.href = "/manager-dashboard.html";
+    } else {
+      window.location.href = "/login.html";
+    }
+  }
+</script>
+
+
+</body>
+</html>

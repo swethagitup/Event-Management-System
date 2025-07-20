@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>View Reports - Event Management</title>
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+  />
+</head>
+<body class="bg-light">
+
+<div class="container mt-5">
+  <h2 class="text-center mb-4">📊 System Reports</h2>
+
+  <div class="row g-4">
+    <div class="col-md-4">
+      <div class="card text-white bg-primary h-100">
+        <div class="card-body text-center">
+          <h5 class="card-title">Total Users</h5>
+          <p class="card-text fs-3" id="totalUsers">--</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="card text-white bg-success h-100">
+        <div class="card-body text-center">
+          <h5 class="card-title">Total Events</h5>
+          <p class="card-text fs-3" id="totalEvents">--</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="card text-white bg-warning h-100">
+        <div class="card-body text-center">
+          <h5 class="card-title">Total Participations</h5>
+          <p class="card-text fs-3" id="totalParticipation">--</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="text-center mt-5">
+    <button onclick="goBack()" class="btn btn-secondary">Back to Dashboard</button>
+  </div>
+</div>
+
+<script>
+  function fetchReports() {
+    fetch('/api/reports')
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById('totalUsers').textContent = data.totalUsers;
+        document.getElementById('totalEvents').textContent = data.totalEvents;
+        document.getElementById('totalParticipation').textContent = data.totalParticipation;
+      })
+      .catch(err => {
+        console.error('Failed to fetch reports:', err);
+        alert('Error loading reports. Please try again later.');
+      });
+  }
+
+  function goBack() {
+    const role = localStorage.getItem("role");
+    if (role === "ADMIN") {
+      window.location.href = "/admin-dashboard.html";
+    } else if (role === "MANAGER") {
+      window.location.href = "/manager-dashboard.html";
+    } else {
+      window.location.href = "/login.html";
+    }
+  }
+
+  fetchReports();
+</script>
+
+</body>
+</html>
